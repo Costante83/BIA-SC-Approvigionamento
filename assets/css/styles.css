@@ -37,15 +37,15 @@
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* Font custom: Elemental End (caricato dal CDN per essere sempre disponibile) */
+/* Font custom: Elemental End (caricato localmente in /assets/fonts) */
 @font-face {
   font-family: "Elemental End";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: local('Elemental End'), local('ElementalEnd'),
-       url('https://fonts.cdnfonts.com/s/6221/ElementalEnd.woff2') format('woff2'),
-       url('https://fonts.cdnfonts.com/s/6221/ElementalEnd.woff') format('woff');
+       url('../fonts/ElementalEnd.woff2') format('woff2'),
+       url('../fonts/ElementalEnd.woff') format('woff');
 }
 
 *{ box-sizing:border-box; }
