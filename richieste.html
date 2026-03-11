@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>=BIA= Procurement • Richieste & Approvvigionamento</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script>
+    (function(){
+      try {
+        const session = localStorage.getItem('bia_procurement_session_v1');
+        if (!session) {
+          window.location.href = 'index.html';
+        }
+      } catch (e) {
+        window.location.href = 'index.html';
+      }
+    })();
+  </script>
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__brand">
+      <div class="badge">
+        <img src="assets/img/222.png" alt="Beyond Interstellar Agency logo" />
+      </div>
+      <div>
+        <div class="brand__title">
+          <div><span class="bia-b">B</span>EYOND</div>
+          <div>INTERSTELLAR</div>
+          <div><span class="bia-a">A</span>GENCY</div>
+        </div>
+        <div class="brand__subtitle">Procurement & Logistics</div>
+      </div>
+    </div>
+
+    <div class="topbar__actions">
+      <a href="index.html" class="btn btn--secondary" style="text-decoration:none; display:inline-flex; align-items:center;">Home</a>
+      <div id="userChip" class="userchip hidden" aria-live="polite"></div>
+      <button id="btnLogin" class="btn btn--primary hidden" type="button">Accedi (DEMO)</button>
+      <button id="btnLogout" class="btn btn--secondary hidden" type="button">Logout</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="viewLogin" class="hidden"></section>
+
+    <section id="viewDashboard">
+      <div class="toolbar">
+        <div>
+          <h1>Richieste di approvvigionamento</h1>
+          <div class="muted">Crea, assegna e completa step.</div>
+        </div>
+
+        <div class="toolbar__right">
+          <input id="searchInput" class="input" type="search" placeholder="Cerca per titolo / autore / stato..." />
+          <button id="btnNewRequest" class="btn" type="button">+ Nuova richiesta</button>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div class="card">
+          <h2>Statistiche</h2>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat__label">Aperte</div>
+              <div id="statOpen" class="stat__value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat__label">In corso</div>
+              <div id="statInProgress" class="stat__value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat__label">Chiuse</div>
+              <div id="statClosed" class="stat__value">0</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="muted small">
+            Stati logici:
+            <ul class="list">
+              <li><b>Aperta</b>: creata, non assegnata</li>
+              <li><b>In corso</b>: assegnata (almeno 1 incarico accettato)</li>
+              <li><b>Chiusa</b>: saldata (permessi Manager/Admin)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card card--wide">
+          <h2>Elenco richieste</h2>
+          <div id="requestList" class="listbox" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <dialog id="modalRequest" class="modal">
+      <form method="post" class="modal__panel" id="requestForm" novalidate>
+        <div class="modal__header">
+          <div>
+            <div class="modal__title" id="modalTitle">Nuova richiesta</div>
+            <div class="muted small">Crea una richiesta di approvvigionamento.</div>
+          </div>
+          <button class="iconbtn" type="button" data-close-request aria-label="Chiudi">✕</button>
+        </div>
+
+        <div class="modal__body">
+          <label class="field">
+            <span>Titolo richiesta</span>
+            <input id="reqTitle" type="text" required placeholder="Es. Acquisto componenti mining" />
+          </label>
+
+          <label class="field">
+            <span>Descrizione</span>
+            <textarea id="reqDesc" rows="4" placeholder="Dettagli, note, quantità, urgenze..."></textarea>
+          </label>
+
+          <div class="grid2">
+            <label class="field">
+              <span>Priorità</span>
+              <select id="reqPriority">
+                <option value="bassa">Bassa</option>
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Scadenza</span>
+              <input id="reqDue" type="date" />
+            </label>
+          </div>
+
+          <div class="grid2">
+            <label class="field">
+              <span>Budget stimato (UEC)</span>
+              <input id="reqBudget" type="number" min="0" step="1" placeholder="Es. 50000" />
+            </label>
+
+            <label class="field">
+              <span>Sezione / reparto</span>
+              <input id="reqSection" type="text" placeholder="Es. Mining / Logistica / Combat" />
+            </label>
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button class="btn btn--secondary" value="cancel" type="button" id="btnCancelReq">Annulla</button>
+          <button class="btn" value="default" type="submit" id="btnSaveReq">Salva richiesta</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="modalConsuntivo" class="modal modal--large">
+      <form method="dialog" class="modal__panel" id="consuntivoPanel">
+        <div class="modal__header">
+          <div class="modal__headerLeft">
+            <div class="modal__title" id="consTitle">Consuntivo</div>
+            <div id="consMeta" class="muted small"></div>
+            <div id="consPhaseDots" class="phaseDots" style="margin-top: 8px;"></div>
+          </div>
+
+          <div class="modal__headerRight">
+            <button id="btnDeleteReq" class="btn btn--danger hidden" type="button">Elimina</button>
+            <button class="iconbtn" type="button" data-close-cons aria-label="Chiudi">✕</button>
+          </div>
+        </div>
+
+        <div class="modal__body">
+          <div class="grid3">
+            <div class="card card--soft">
+              <h2>Dettagli</h2>
+              <div class="kv">
+                <div class="kv__row"><div class="kv__k">Titolo</div><div id="kvTitle" class="kv__v"></div></div>
+                <div class="kv__row"><div class="kv__k">Priorità</div><div id="kvPriority" class="kv__v"></div></div>
+                <div class="kv__row"><div class="kv__k">Scadenza</div><div id="kvDue" class="kv__v"></div></div>
+                <div class="kv__row"><div class="kv__k">Budget</div><div id="kvBudget" class="kv__v"></div></div>
+                <div class="kv__row"><div class="kv__k">Sezione</div><div id="kvSection" class="kv__v"></div></div>
+                <div class="kv__row"><div class="kv__k">Stato</div><div id="kvStatus" class="kv__v pill"></div></div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2>Descrizione</h2>
+              <div id="kvDesc" class="muted"></div>
+            </div>
+
+            <div class="card card--soft">
+              <h2>Incarico</h2>
+              <div id="assignmentBox" class="muted small"></div>
+              <div class="divider"></div>
+              <h2>Stato (permessi)</h2>
+              <div class="grid2">
+                <label class="check">
+                  <input id="chkRitirato" type="checkbox" />
+                  <span>Ritirato</span>
+                </label>
+                <label class="check">
+                  <input id="chkSaldato" type="checkbox" />
+                  <span>Saldato</span>
+                </label>
+              </div>
+              <div class="hint">Solo <b>Manager/Admin</b> possono modificare queste spunte.</div>
+            </div>
+
+            <div class="card card--soft">
+              <h2>Appunti</h2>
+              <textarea id="reqNotes" rows="6" placeholder="Scrivi note libere..."></textarea>
+              <div class="hint">Le note vengono salvate automaticamente.</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="card">
+            <h2>Step / Avanzamento</h2>
+            <div class="row row--between">
+              <div class="muted small">Compila i dettagli del trasporto e salva lo step per aggiornare lo stato.</div>
+              <button id="btnAddStep" class="btn" type="button">+ Aggiungi trasporto</button>
+            </div>
+            <div id="stepList" class="steplist"></div>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="modalTransporto" class="modal modal--solid">
+      <div class="modal__panel">
+        <div class="modal__header">
+          <h3>Nuovo Trasporto</h3>
+        </div>
+
+        <form id="transportForm" class="modal__body">
+          <div class="field">
+            <label for="transportSCU">SCU Trasportati</label>
+            <input id="transportSCU" type="number" placeholder="Quantità" min="0" step="1" required>
+          </div>
+
+          <div class="field">
+            <label for="transportPrice">Importo SCU (UEC)</label>
+            <input id="transportPrice" type="number" placeholder="Importo per SCU" min="0" step="0.01" required>
+          </div>
+
+          <div class="divider" style="margin: 15px 0;"></div>
+
+          <div class="kv" style="margin-bottom: 15px;">
+            <div><span class="muted">Spesa Totale</span></div>
+            <div id="transportSpesaTotal" style="text-align: right; font-weight: bold;">0 UEC</div>
+          </div>
+
+          <div class="kv" style="margin-bottom: 15px;">
+            <div><span class="muted">Compenso Pilota (10%)</span></div>
+            <div id="transportCompenso" style="text-align: right; font-weight: bold; color: var(--accent);">0 UEC</div>
+          </div>
+
+          <div class="kv" style="margin-bottom: 20px; padding-top: 10px; border-top: 2px solid var(--line);">
+            <div><span style="font-weight: bold;">Importo Totale</span></div>
+            <div id="transportImportoTotal" style="text-align: right; font-weight: bold; font-size: 16px; color: var(--accent2);">0 UEC</div>
+          </div>
+
+          <div class="divider" style="margin: 20px 0;"></div>
+
+          <div class="field" style="margin-bottom: 15px;">
+            <span>Adempimento</span>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input id="transportFulfillmentPartial" name="transportFulfillment" type="radio" value="partial" style="width: 18px; height: 18px; cursor: pointer;" checked>
+              <span>Parziale</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input id="transportFulfillmentTotal" name="transportFulfillment" type="radio" value="total" style="width: 18px; height: 18px; cursor: pointer;">
+              <span>Totale</span>
+            </label>
+          </div>
+
+          <div id="adminFlags" style="display: none;">
+            <div class="field" style="margin-bottom: 15px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input id="chkTransportScaricato" type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+                <span>Scaricato</span>
+              </label>
+            </div>
+            <div class="field" style="margin-bottom: 20px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input id="chkTransportPagato" type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+                <span>Pagato</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="divider" style="margin: 20px 0;"></div>
+
+          <div class="row row--between" style="gap: 10px;">
+            <button type="button" class="btn btn--secondary" data-close-transport>Annulla</button>
+            <button type="submit" class="btn">Salva Trasporto</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <span>• =BIA= • Procurement & Logistics</span>
+      <span class="muted">Sezione attiva del main hub</span>
+    </div>
+  </footer>
+</body>
+</html>
