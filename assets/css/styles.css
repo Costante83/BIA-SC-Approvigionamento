@@ -660,7 +660,7 @@ b{
   padding: 22px;
   border-radius: 18px;
   border: 1px solid rgba(33,165,255,.55);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(231,243,255, 0.08));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(231,243,255, 0.5));
   box-shadow: 0 0 14px rgba(11, 67, 104, 0.45), 0 0 30px rgba(33,165,255,.25), var(--shadow);
   color: var(--ink);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
@@ -678,17 +678,17 @@ b{
   letter-spacing: .4px;
   margin-bottom: 8px;
   /* Aggiunge un bordo/contorno alle lettere */
-  -webkit-text-stroke: 0.5px rgba(0,0,0,0.35);
-  text-shadow: 0 0 1px rgba(0,0,0,0.6);
+  -webkit-text-stroke: 1px rgba(29, 34, 44, 0.6);
+  text-shadow: 0 0 1px rgba(33, 84, 194, 0.6);
 }
 
 .hub-card__desc{
-  color: var(--muted);
-  font-size: 14px;
+  color:rgba(248, 249, 250);
+  font-size: 15px;
   line-height: 1.45;
   /* Aggiunge un bordo/contorno alle lettere */
-  -webkit-text-stroke: 1px rgba(0,0,0,0.35);
-  text-shadow: 0 0 1px rgba(0,0,0,0.6);
+  -webkit-text-stroke: 1px rgba(29, 34, 44, 0.7);
+  text-shadow: 0 0 1px rgba(33, 84, 194, 0.6);
 }
 
 .hub-card--disabled{
