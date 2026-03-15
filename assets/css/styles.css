@@ -660,7 +660,7 @@ b{
   padding: 22px;
   border-radius: 18px;
   border: 1px solid rgba(33,165,255,.55);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(231,243,255, 0.5));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(231,243,255, 0.9));
   box-shadow: 0 0 14px rgba(11, 67, 104, 0.45), 0 0 30px rgba(33,165,255,.25), var(--shadow);
   color: var(--ink);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
